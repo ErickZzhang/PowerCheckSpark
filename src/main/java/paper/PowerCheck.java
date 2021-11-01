@@ -30,9 +30,10 @@ public class PowerCheck {
         Dataset<Row> lines = spark.readStream().format("kafka")
                 .option("kafka.bootstrap.servers", "kafka-1.kafka-headless.default.svc.cluster.local:9092,kafka-2.kafka-headless.default.svc.cluster.local:9092,kafka-3.kafka-headless.default.svc.cluster.local:9092")
                 .option("subscribe", "PMU-data")
+                .option("startingOffsets", "latest")
                 .load();
 
-        Dataset<String> linesString = lines.as(Encoders.STRING());
+        Dataset<String> linesString = lines.selectExpr("CAST value AS STRING").as(Encoders.STRING());
         Dataset<PowerBean> powerBeanDataset = linesString.map(new MapFunction<String, PowerBean>() {
             @Override
             public PowerBean call(String s) throws Exception {
