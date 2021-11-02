@@ -6,6 +6,7 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
+import org.slf4j.Logger;
 import scala.Function1;
 import utils.InfluxDBSink;
 import utils.MathUtils;
@@ -19,6 +20,7 @@ public class PowerCheck {
                 .builder()
                 .appName("PowerCheckSpark")
                 .getOrCreate();
+        Logger log = spark.sparkContext().log();
 //        Properties prop = new Properties();
 //        prop.setProperty("source.topic", "PMU-data");
 //        prop.setProperty("bootstrap.servers", "10.66.101.210:31090,10.66.101.210:31091,10.66.101.210:31092");
@@ -39,6 +41,8 @@ public class PowerCheck {
         Dataset<PowerBean> powerBeanDataset = linesString.map(new MapFunction<String, PowerBean>() {
             @Override
             public PowerBean call(String s) throws Exception {
+                log.info(s);
+
                 SourceBean sourceBean = JSON.parseObject(s, SourceBean.class);
                 return MathUtils.sourceToPower(sourceBean);
             }
