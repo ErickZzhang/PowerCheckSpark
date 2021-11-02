@@ -6,6 +6,7 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
+import scala.Function1;
 import utils.InfluxDBSink;
 import utils.MathUtils;
 
@@ -28,12 +29,13 @@ public class PowerCheck {
 //        prop.setProperty("kafkaParallelism","3");
 
         Dataset<Row> lines = spark.readStream().format("kafka")
-                .option("kafka.bootstrap.servers", "kafka-1.kafka-headless.default.svc.cluster.local:9092,kafka-2.kafka-headless.default.svc.cluster.local:9092,kafka-3.kafka-headless.default.svc.cluster.local:9092")
+                .option("kafka.bootstrap.servers", "kafka-0.kafka-headless.default.svc.cluster.local:9092,kafka-1.kafka-headless.default.svc.cluster.local:9092,kafka-2.kafka-headless.default.svc.cluster.local:9092")
                 .option("subscribe", "PMU-data")
                 .option("startingOffsets", "latest")
                 .load();
 
         Dataset<String> linesString = lines.selectExpr("CAST (value AS STRING) AS value").as(Encoders.STRING());
+
         Dataset<PowerBean> powerBeanDataset = linesString.map(new MapFunction<String, PowerBean>() {
             @Override
             public PowerBean call(String s) throws Exception {
