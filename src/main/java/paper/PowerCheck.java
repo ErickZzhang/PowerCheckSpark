@@ -36,7 +36,7 @@ public class PowerCheck {
                 .option("startingOffsets", "latest")
                 .load();
 
-        Dataset<String> linesString = lines.selectExpr("CAST (value AS STRING) AS value").as(Encoders.STRING());
+        Dataset<String> linesString = lines.selectExpr("CAST(value AS STRING)").as(Encoders.STRING());
 
         Dataset<PowerBean> powerBeanDataset = linesString.map(new MapFunction<String, PowerBean>() {
             @Override
